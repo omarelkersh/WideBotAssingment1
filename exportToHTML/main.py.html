@@ -1,0 +1,104 @@
+<html>
+<head>
+<title>main.py</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #cc7832;}
+.s1 { color: #a9b7c6;}
+.s2 { color: #6a8759;}
+.s3 { color: #6897bb;}
+.s4 { color: #808080;}
+</style>
+</head>
+<body bgcolor="#2b2b2b">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+main.py</font>
+</center></td></tr></table>
+<pre><span class="s0">class </span><span class="s1">TrieNode:</span>
+    <span class="s0">def </span><span class="s1">__init__(self):</span>
+        <span class="s1">self.children = {}</span>
+        <span class="s1">self.is_end_of_word = </span><span class="s0">False</span>
+
+<span class="s0">class </span><span class="s1">SpellChecker:</span>
+    <span class="s0">def </span><span class="s1">__init__(self</span><span class="s0">, </span><span class="s1">dictionary_file):</span>
+        <span class="s1">self.root = TrieNode()</span>
+        <span class="s1">self.load_dictionary(dictionary_file)</span>
+
+
+    <span class="s0">def </span><span class="s1">load_dictionary(self</span><span class="s0">, </span><span class="s1">dictionary_file):</span>
+        <span class="s0">try</span><span class="s1">:</span>
+            <span class="s0">with </span><span class="s1">open(dictionary_file</span><span class="s0">, </span><span class="s2">'r'</span><span class="s0">, </span><span class="s1">encoding=</span><span class="s2">'utf-8-sig'</span><span class="s1">) </span><span class="s0">as </span><span class="s1">file:</span>
+                <span class="s1">words = file.read().splitlines()</span>
+        <span class="s0">except </span><span class="s1">UnicodeDecodeError:</span>
+            <span class="s0">with </span><span class="s1">open(dictionary_file</span><span class="s0">, </span><span class="s2">'r'</span><span class="s0">, </span><span class="s1">encoding=</span><span class="s2">'latin-1'</span><span class="s1">) </span><span class="s0">as </span><span class="s1">file:</span>
+                <span class="s1">words = file.read().splitlines()</span>
+
+        <span class="s0">for </span><span class="s1">word </span><span class="s0">in </span><span class="s1">words:</span>
+            <span class="s1">self.add_word(word)</span>
+
+    <span class="s0">def </span><span class="s1">add_word(self</span><span class="s0">, </span><span class="s1">word):</span>
+        <span class="s1">node = self.root</span>
+        <span class="s0">for </span><span class="s1">char </span><span class="s0">in </span><span class="s1">word:</span>
+            <span class="s0">if </span><span class="s1">char </span><span class="s0">not in </span><span class="s1">node.children:</span>
+                <span class="s1">node.children[char] = TrieNode()</span>
+            <span class="s1">node = node.children[char]</span>
+        <span class="s1">node.is_end_of_word = </span><span class="s0">True</span>
+
+    <span class="s0">def </span><span class="s1">find_nearest_words(self</span><span class="s0">, </span><span class="s1">word):</span>
+        <span class="s0">def </span><span class="s1">dfs(node</span><span class="s0">, </span><span class="s1">current_word</span><span class="s0">, </span><span class="s1">distance):</span>
+            <span class="s0">if </span><span class="s1">node.is_end_of_word </span><span class="s0">and </span><span class="s1">current_word != word:</span>
+                <span class="s1">candidates.append((current_word</span><span class="s0">, </span><span class="s1">distance))</span>
+            <span class="s0">if not </span><span class="s1">node.children:</span>
+                <span class="s0">return</span>
+            <span class="s0">for </span><span class="s1">char </span><span class="s0">in </span><span class="s1">node.children:</span>
+                <span class="s1">dfs(node.children[char]</span><span class="s0">, </span><span class="s1">current_word + char</span><span class="s0">, </span><span class="s1">distance + </span><span class="s3">1</span><span class="s1">)</span>
+
+        <span class="s0">def </span><span class="s1">lexicographic_sort(word_list):</span>
+            <span class="s0">return </span><span class="s1">sorted(word_list</span><span class="s0">, </span><span class="s1">key=</span><span class="s0">lambda </span><span class="s1">x: (x[</span><span class="s3">1</span><span class="s1">]</span><span class="s0">, </span><span class="s1">x[</span><span class="s3">0</span><span class="s1">]))[:</span><span class="s3">4</span><span class="s1">]</span>
+
+        <span class="s1">node = self.root</span>
+        <span class="s1">candidates = []</span>
+        <span class="s0">for </span><span class="s1">char </span><span class="s0">in </span><span class="s1">word:</span>
+            <span class="s0">if </span><span class="s1">char </span><span class="s0">not in </span><span class="s1">node.children:</span>
+                <span class="s4"># Handle the case when the input word is not present in the dictionary</span>
+                <span class="s1">dfs(node</span><span class="s0">, </span><span class="s1">word</span><span class="s0">, </span><span class="s3">0</span><span class="s1">)</span>
+                <span class="s0">return </span><span class="s1">lexicographic_sort(candidates)</span>
+            <span class="s1">node = node.children[char]</span>
+        <span class="s0">if </span><span class="s1">node.is_end_of_word  </span><span class="s0">and </span><span class="s1">word != </span><span class="s2">&quot;&quot;</span><span class="s1">:</span>
+            <span class="s1">candidates.append((word</span><span class="s0">, </span><span class="s3">0</span><span class="s1">))</span>
+        <span class="s1">dfs(node</span><span class="s0">, </span><span class="s1">word</span><span class="s0">, </span><span class="s3">0</span><span class="s1">)</span>
+
+        <span class="s4"># Handle the case when no similar words are found in the dictionary</span>
+        <span class="s0">if not </span><span class="s1">candidates:</span>
+            <span class="s1">dfs(self.root</span><span class="s0">, </span><span class="s2">''</span><span class="s0">, </span><span class="s3">0</span><span class="s1">)</span>
+            <span class="s0">return </span><span class="s1">lexicographic_sort(candidates)</span>
+
+        <span class="s0">return </span><span class="s1">lexicographic_sort(candidates)</span>
+
+    <span class="s0">def </span><span class="s1">add_to_dictionary(self</span><span class="s0">, </span><span class="s1">word):</span>
+        <span class="s1">self.add_word(word)</span>
+
+<span class="s4"># Example usage:</span>
+<span class="s0">if </span><span class="s1">__name__ == </span><span class="s2">&quot;__main__&quot;</span><span class="s1">:</span>
+    <span class="s1">dictionary_file = </span><span class="s2">&quot;dictionary.txt&quot;</span>
+    <span class="s1">spell_checker = SpellChecker(dictionary_file)</span>
+
+    <span class="s4"># Find nearest 4 words for a given input word</span>
+    <span class="s1">input_word = </span><span class="s2">&quot;apple&quot;</span>
+    <span class="s1">nearest_words = spell_checker.find_nearest_words(input_word)</span>
+    <span class="s1">print(</span><span class="s2">f&quot;Nearest words to '</span><span class="s0">{</span><span class="s1">input_word</span><span class="s0">}</span><span class="s2">': </span><span class="s0">{</span><span class="s1">nearest_words</span><span class="s0">}</span><span class="s2">&quot;</span><span class="s1">)</span>
+
+    <span class="s1">input_word = </span><span class="s2">&quot;wrod&quot;</span>
+    <span class="s1">nearest_words = spell_checker.find_nearest_words(input_word)</span>
+    <span class="s1">print(</span><span class="s2">f&quot;Nearest words to '</span><span class="s0">{</span><span class="s1">input_word</span><span class="s0">}</span><span class="s2">': </span><span class="s0">{</span><span class="s1">nearest_words</span><span class="s0">}</span><span class="s2">&quot;</span><span class="s1">)</span>
+
+    <span class="s4"># Add a word to the dictionary</span>
+    <span class="s1">new_word = </span><span class="s2">&quot;example&quot;</span>
+    <span class="s1">spell_checker.add_to_dictionary(new_word)</span>
+    <span class="s1">print(</span><span class="s2">f&quot;'</span><span class="s0">{</span><span class="s1">new_word</span><span class="s0">}</span><span class="s2">' added to the dictionary.&quot;</span><span class="s1">)</span>
+
+</pre>
+</body>
+</html>
